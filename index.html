@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>サーバーレス ピアノロール作曲アプリ</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-900 text-slate-100 h-screen flex flex-col overflow-hidden font-sans">
+
+    <!-- ヘッダー / 操作パネル -->
+    <header class="bg-slate-800 border-b border-slate-700 px-4 py-3 flex flex-wrap items-center justify-between gap-4 shadow-md z-30">
+        <div class="flex items-center space-x-3">
+            <h1 class="text-xl font-bold tracking-wider text-cyan-400 flex items-center gap-2">
+                🎹 Piano Roll Studio
+            </h1>
+        </div>
+
+        <!-- 再生・停止・クリアコントロール -->
+        <div class="flex items-center space-x-2">
+            <button id="play-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-1.5 rounded font-medium transition flex items-center gap-1 shadow">
+                ▶ 再生
+            </button>
+            <button id="stop-btn" class="bg-rose-600 hover:bg-rose-500 text-white px-4 py-1.5 rounded font-medium transition flex items-center gap-1 shadow">
+                ⏹ 停止
+            </button>
+            <button id="clear-btn" class="bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1.5 rounded text-sm transition border border-slate-600">
+                オールクリア
+            </button>
+        </div>
+
+        <!-- テンポ (BPM) & メトロノーム音色調整 -->
+        <div class="flex items-center space-x-3 bg-slate-900/60 px-3 py-1.5 rounded border border-slate-700">
+            <div class="flex items-center space-x-1.5">
+                <label for="bpm-input" class="text-xs text-slate-400 font-medium">BPM</label>
+                <input type="number" id="bpm-input" value="120" min="40" max="240" class="w-14 bg-slate-800 text-center text-cyan-300 font-bold rounded px-1 py-0.5 border border-slate-600 focus:outline-none focus:border-cyan-500">
+            </div>
+            <div class="flex items-center space-x-1.5 border-l border-slate-700 pl-3">
+                <label for="metronome-type-select" class="text-xs text-slate-400 font-medium">メトロノーム</label>
+                <select id="metronome-type-select" class="bg-slate-800 text-cyan-300 font-bold rounded px-1.5 py-0.5 border border-slate-600 focus:outline-none focus:border-cyan-500 text-xs">
+                    <option value="beep">電子音 (Beep)</option>
+                    <option value="wood">木製 (Wood)</option>
+                    <option value="hat">ハイハット風 (Click)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- ファイル操作 (JSON & WAV) -->
+        <div class="flex items-center space-x-2">
+            <button id="export-json-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded text-sm transition">
+                JSON保存
+            </button>
+            <label class="bg-indigo-700 hover:bg-indigo-600 text-white px-3 py-1.5 rounded text-sm transition cursor-pointer">
+                JSON読込
+                <input type="file" id="import-json-input" accept=".json" class="hidden">
+            </label>
+            <button id="export-wav-btn" class="bg-cyan-600 hover:bg-cyan-500 text-white px-3 py-1.5 rounded text-sm font-medium transition shadow">
+                WAV出力
+            </button>
+        </div>
+    </header>
+
+    <!-- メイン・ピアノロール領域 -->
+    <main class="flex-1 flex overflow-hidden relative bg-slate-950">
+        
+        <!-- 左側：固定された鍵盤エリア -->
+        <div class="w-20 flex-shrink-0 flex flex-col bg-slate-900 border-r border-slate-700 select-none z-30">
+            <div style="height: 32px;" class="bg-slate-800 border-b border-slate-700 flex items-center justify-center text-xs text-slate-400 font-bold flex-shrink-0">
+                鍵盤
+            </div>
+            <div id="keyboard-scroll-sync" class="flex-1 overflow-hidden">
+                <div id="keyboard-container" class="flex flex-col"></div>
+            </div>
+        </div>
+
+        <!-- 右側：タイムラインヘッダー ＋ グリッドエリア -->
+        <div class="flex-1 flex flex-col overflow-auto" id="roll-scroll-container">
+            <!-- 上部：小節番号（高さ32pxで完全に固定） -->
+            <div id="timeline-header" class="flex sticky top-0 z-30 bg-slate-900 border-b border-slate-700 select-none" style="height: 32px;">
+                <div id="bar-numbers-container" class="flex relative flex-1 h-full"></div>
+            </div>
+
+            <!-- グリッド本体 -->
+            <div id="grid-container" class="flex-1 relative bg-slate-950 select-none cursor-crosshair">
+                <div id="playhead" class="absolute top-0 bottom-0 w-0.5 bg-rose-500 z-30 pointer-events-none hidden"></div>
+                <div id="grid-canvas-area" class="absolute inset-0"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
